@@ -98,13 +98,13 @@ with tab4:
   
    with fig_col1:
         st.markdown("### Nombre de morts pour un million d'habitants")
-        fig=px.bar(df_u,x='Nombre de morts par million',y='location', orientation='h')
+        fig=st.bar_chart(df_u,x='Nombre de morts par million',y='location', orientation='h')
         st.write(fig)
             
    with fig_col2:
 
         st.markdown("### Nombre de vaccinés pour un million d'habitants")
-        fig2=px.bar(df_u,x='Nombre de vaccinés ( toutes les doses) par million' , y='location', orientation='h')
+        fig2=st.bar_chart(df_u,x='Nombre de vaccinés ( toutes les doses) par million' , y='location')
         st.write(fig2)
     
    st.markdown("### Caractéristiques des pays")
