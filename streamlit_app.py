@@ -1,14 +1,8 @@
 
 import numpy as np  # np mean, np random
 import pandas as pd  # read csv, df manipulation
-import plotly.express as px  # interactive charts
 import streamlit as st  # 🎈 data web app development
 import altair as alt
-st.set_page_config(
-    page_title="Impact covid",
-    page_icon="✅",
-    layout="wide",
-)
 
 
 st.title("Propagation du COVID19 et impact des vaccins")
