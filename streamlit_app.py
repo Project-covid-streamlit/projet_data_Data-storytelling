@@ -56,7 +56,7 @@ with tab3:
    # top-level filters
    job_filte = st.multiselect("Pays ou Continent(choisissez un ou plusieurs pays", pd.unique(df_c["location"]))
 
-   df_c = df_c[df_c["location"] in job_filte]
+   df_c = df_c[df_c["location"].isin(job_filte)]
   
    st.markdown("### Evolution nombre de cas COVID19 et de personnes vaccinées")
 
