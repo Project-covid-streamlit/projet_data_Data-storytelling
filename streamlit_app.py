@@ -3,11 +3,12 @@ import numpy as np  # np mean, np random
 import pandas as pd  # read csv, df manipulation
 import streamlit as st  # 🎈 data web app development
 import altair as alt
+import matplotlib.pyplot as plt
 
 
 st.title("Propagation du COVID19 et impact des vaccins")
 
-tab1, tab2,tab3,tab4 = st.tabs(["Découverte du COVID19", "Propagation du COVID19","Evolution du COVID19 et vaccins","Bilan COVID19"])
+tab1,tab2,tab3,tab4 = st.tabs(["Découverte du COVID19", "Propagation du COVID19","Evolution du COVID19 et vaccins","Bilan COVID19"])
 
 with tab1:
     st.header("Découverte du COVID19")
@@ -30,16 +31,15 @@ with tab2:
     job_filter = st.select_slider("Date", df_e["Date"].sort_values(ascending=True))
     df_e = df_e[df_e["Date"] <= job_filter]
     
-  
-    fig_col3, fig_col4 = st.columns(2)
-    
-    with fig_col3:
-        st.markdown("### Premiers cas de COVID19 par pays")
-        st.dataframe(df_e)
-         
-    with fig_col4:
-        st.markdown("### Propagation du COVID19 dans le monde")
-        st.map(df_e)
+    st.markdown("### Propagation du COVID19 dans le monde")
+    st.map(df_e)
+   
+    st.markdown("### Premiers cas de COVID19 par pays")
+    fig, ax = plt.subplots()
+    ax.barh(y=df_e["Pays"],  width=df_e["Premiers cas"], align='center')
+    ax.invert_yaxis()  # labels read top-to-bottom
+    ax.set_xlabel('Nombre de cas enregistrés lors de la prémiere detection du COVID dans le pays ')
+    st.pyplot(fig)
 
     st.markdown("<h2 style='text-align:center;'>Question</h2>", unsafe_allow_html=True)
     if st.button('Quel est le dernier pays à être affecté par le COVID 19 ?'):
@@ -51,61 +51,65 @@ with tab2:
 
 with tab3:
    st.header("Evolution du COVID19 et vaccins")
-   df_c=pd.read_csv("https://raw.githubusercontent.com/Project-covid-streamlit/projet_data_Data-storytelling/f728acc123fc629946391f1aa4d8d5703383400d/COVID%20et%20VACCINS%20par%20pays.csv")
+   df_c=pd.read_csv("https://raw.githubusercontent.com/Project-covid-streamlit/projet_data_Data-storytelling/alimou/COVIDIIVACCINS.csv")
 
    # top-level filters
-   job_filte = st.selectbox("Pays ou Continent", pd.unique(df_c["location"]))
+   job_filte = st.multiselect("Pays ou Continent(choisissez un ou plusieurs pays", pd.unique(df_c["location"]))
 
-   df_c = df_c[df_c["location"] == job_filte]
-   
-       # creating KPIs
-   med_age = np.mean(df_c["median_age"])
-   agé = np.mean(df_c["aged_65_older"])   
-   densité = np.mean(df_c["population_density"])
-   #lits = np.mean(df_c["hospital_beds_per_thousand"])
-   #idh= np.mean(df_c["human_development_index"])
-   
-   kpi1, kpi2, kpi3 = st.columns(3)
-
-   
-   kpi1.metric(
-            label="Age médian",
-            value=round(med_age))
-   
-   kpi2.metric(
-            label="Par de population de plus de 65 ans (%)",
-            value=round(agé))
-   kpi3.metric(
-            label="Densité de population",
-            value=round(densité))
+   df_c = df_c[df_c["location"] in job_filte]
   
    st.markdown("### Evolution nombre de cas COVID19 et de personnes vaccinées")
-   st.line_chart(df_c, x="date", y=["total_cases","people_vaccinated","people_fully_vaccinated"])
-   
+
+   c = alt.Chart(df_c).mark_line().encode(
+   x='date', y='total_cases', color='location')
+   st.altair_chart(c, use_container_width=True)
+
+   st.markdown("### Evolution du nombre de personnes vaccinées")
+   n = alt.Chart(df_c).mark_line().encode(
+   x='date', y='people_vaccinated', color='location')
+   st.altair_chart(n, use_container_width=True)
+
    st.markdown("### Evolution du nombre de décès")
-   st.line_chart(df_c, x="date", y=["total_deaths"])
-   
-   
+   m = alt.Chart(df_c).mark_line().encode(
+   x='date', y='total_deaths', color='location')
+   st.altair_chart(m, use_container_width=True)
+
+  
 
 with tab4:
    st.header("Bilan")
   
    df_u=pd.read_csv("https://raw.githubusercontent.com/Project-covid-streamlit/projet_data_Data-storytelling/alimou/Les%20pays%20les%20plus%20touch%C3%A9s.csv")
-   job_filter = st.select_slider("Nombre de pays", df_u["Index"].sort_values(ascending=True))
-   df_u = df_u[df_u["Index"] <= job_filter]    
+   start_c, end_c = st.select_slider("Nombre de pays(les pays sont classés par ordre croissant de mombre de morts pour un million d'habitants)", df_u["Index"].sort_values(ascending=True),value=(1, 209))
+   df_u = df_u[(df_u["Index"] >= start_c) & (df_u["Index"] <= end_c)]    
+   
 
    fig_col1, fig_col2 = st.columns(2)
   
    with fig_col1:
         st.markdown("### Nombre de morts pour un million d'habitants")
-        st.bar_chart(df_u,x='Nombre de morts par million',y='location')
-        
-            
+        fig1, ax = plt.subplots()
+        ax.barh(y=df_u["location"],  width=df_u["Nombre de morts par million"], align='center')
+        ax.invert_yaxis()  # labels read top-to-bottom
+        ax.set_xlabel('Nombre de morts par million')
+        st.pyplot(fig1)
+                
    with fig_col2:
 
         st.markdown("### Nombre de vaccinés pour un million d'habitants")
-        st.bar_chart(df_u,x='Nombre de vaccinés ( toutes les doses) par million' , y='location')
+        fig2, ax = plt.subplots()
+        ax.barh(y=df_u["location"],  width=df_u["Nombre de vaccinés ( toutes les doses) par million"], align='center')
+        ax.invert_yaxis()  # labels read top-to-bottom
+        ax.set_xlabel('Nombre de morts par million')
+        st.pyplot(fig2)
         
-    
-   st.markdown("### Caractéristiques des pays")
-   st.dataframe(df_u)
+
+   st.markdown("### Population en fonction de la densité de population(habitants/km2)")
+   c = alt.Chart(df_u).mark_circle().encode(
+   x='population_density', y='population', color='location')
+   st.altair_chart(c, use_container_width=True)
+
+   st.markdown("### Nombre de lits pour 1000 habitants en fonction du pourcentage de personnes agées de plus 65 ans")
+   j = alt.Chart(df_u).mark_circle().encode(
+   x='aged_65_older', y='hospital_beds_per_thousand', color='location')
+   st.altair_chart(j, use_container_width=True)
