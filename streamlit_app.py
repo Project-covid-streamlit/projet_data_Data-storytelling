@@ -54,7 +54,7 @@ with tab3:
    df_c=pd.read_csv("https://raw.githubusercontent.com/Project-covid-streamlit/projet_data_Data-storytelling/alimou/COVIDIIVACCINS.csv")
 
    # top-level filters
-   job_filte = st.multiselect("Pays ou Continent(choisissez un ou plusieurs pays", pd.unique(df_c["location"]))
+   job_filte = st.multiselect("Pays ou Continent(choisissez un ou plusieurs pays)", pd.unique(df_c["location"]))
 
    df_c = df_c[df_c["location"].isin(job_filte)]
   
@@ -80,7 +80,7 @@ with tab4:
    st.header("Bilan")
   
    df_u=pd.read_csv("https://raw.githubusercontent.com/Project-covid-streamlit/projet_data_Data-storytelling/alimou/Les%20pays%20les%20plus%20touch%C3%A9s.csv")
-   start_c, end_c = st.select_slider("Nombre de pays(les pays sont classés par ordre croissant de mombre de morts pour un million d'habitants)", df_u["Index"].sort_values(ascending=True),value=(1, 209))
+   start_c, end_c = st.select_slider("Nombre de pays(les pays sont classés par ordre croissant de mombre de morts pour un million d'habitants)", df_u["Index"].sort_values(ascending=True),value=(1, 7))
    df_u = df_u[(df_u["Index"] >= start_c) & (df_u["Index"] <= end_c)]    
    
 
